@@ -15,6 +15,7 @@ module.exports = [
             'out/**',
             'workshop/**',
             'tools/**',
+            'IronbaneAssets/**', // separate (gitignored) game content checkout
             'src/client/**', // browser bundles + vendored libraries
             '**/*.min.js'
         ]

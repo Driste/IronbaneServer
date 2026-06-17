@@ -65,6 +65,11 @@ var Fighter = Actor.extend({
         this.armorRegenTimeout = 0.0;
         this.armorRegenInterval = 1.0;
 
+        // bonus to max health and passive regen granted by item behaviors
+        this.healthBonus = 0;
+        this.healthRegen = null;
+        this.itemRegenTimeout = 0.0;
+
         this.lastBattleActionTimer = 0.0;
 
         if (this.GetEquippedWeapon()) {
@@ -221,6 +226,16 @@ var Fighter = Actor.extend({
                 if (this.armorRegenTimeout <= 0) {
                     this.armorRegenTimeout = this.armorRegenInterval;
                     this.SetArmor(this.armor + 1);
+                }
+            }
+
+            // Passive health regen granted by item behaviors (HealthRegen).
+            // Unlike the monster regen above this also applies to players.
+            if (this.healthRegen && this.health < this.healthMax) {
+                this.itemRegenTimeout -= dTime;
+                if (this.itemRegenTimeout <= 0) {
+                    this.itemRegenTimeout = this.healthRegen.rate;
+                    this.SetHealth(this.health + this.healthRegen.amount);
                 }
             }
 
@@ -412,7 +427,11 @@ var Fighter = Actor.extend({
         //            }
         //        }
 
-        this.healthMax = 20;
+        // base health plus any bonus applied by item behaviors (e.g. MaxLife)
+        this.healthMax = 20 + (this.healthBonus || 0);
+        if (this.healthMax < 1) {
+            this.healthMax = 1;
+        }
 
         if (doEmit && this.healthMax !== oldHealthMax) {
             this.EmitNearby("setStat", {

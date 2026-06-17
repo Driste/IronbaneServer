@@ -4,7 +4,7 @@
   "description": "Ironbane, the open source browser MMO.",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test/itemBehavior.test.js",
     "lint": "eslint ."
   },
   "repository": {

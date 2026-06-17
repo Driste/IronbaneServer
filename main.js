@@ -213,6 +213,7 @@ function start(scripts) {
     // temporarily global services
     global.itemTemplateService = require('./src/server/services/itemTemplate');
     global.itemService = require('./src/server/services/item');
+    global.itemBehaviorService = require('./src/server/services/itemBehavior');
 
     // temporarily global entities
     global.ItemTemplate = require('./src/server/entity/itemTemplate');

@@ -153,7 +153,7 @@ var SocketHandler = Class.extend({
 
             // first thing check for IP bans
             _.each(me.bans, function(ban) {
-                if (ban.ip === req.io.socket.handshake.address.address) {
+                if (ban.ip === req.io.socket.handshake.address) {
                     var time = Math.round((new Date()).getTime() / 1000);
                     if (ban.until > time || !ban.until) {
                         respond({errmsg: 'You have been banned.'});
@@ -272,7 +272,7 @@ var SocketHandler = Class.extend({
         });
 
         io.sockets.on("connection", function (socket) {
-            socket.ip = socket.handshake.address.address;
+            socket.ip = socket.handshake.address;
 
             socket.unit = null;
 

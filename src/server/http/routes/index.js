@@ -140,7 +140,7 @@ module.exports = function(app, db) {
 
             res.render('game/index');
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     };
 
@@ -161,7 +161,7 @@ module.exports = function(app, db) {
         var path = require('path');
         // if we are requesting a specific resource it is likely an image or something, don't do angular
         if (path.extname(req.path) !== '') {
-            res.send(404);
+            res.sendStatus(404);
             return;
         }
 

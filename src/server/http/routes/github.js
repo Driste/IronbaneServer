@@ -18,7 +18,7 @@ module.exports = function(app) {
         }, function(err, results) {
             //console.log('github', arguments);
             if(err) {
-                res.send(500, err);
+                res.status(500).send(err);
                 return;
             }
 

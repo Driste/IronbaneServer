@@ -41,10 +41,19 @@ var Server = Class.extend({
 
         logger.info("Starting http server");
         var db = this.db;
+        var fs = require('fs');
 
-        // create http api server
-        var express = require('express.io');
-        var MySQLStore = require('connect-mysql')(express);
+        // create http api server (Express 4 + Socket.IO 4 via a small
+        // express.io compatibility shim, replacing the abandoned express.io)
+        var express = require('express');
+        var http = require('http');
+        var session = require('express-session');
+        var cookieParser = require('cookie-parser');
+        var compression = require('compression');
+        var methodOverride = require('method-override');
+        var favicon = require('serve-favicon');
+        var MySQLStore = require('connect-mysql')(session);
+        var attachExpressIO = require('./express-io-compat');
         var passport = require('passport');
         var LocalStrategy = require('passport-local').Strategy;
         var User = require('../entity/user')(db);
@@ -72,123 +81,114 @@ var Server = Class.extend({
         }));
 
         var isProduction = config.get('isProduction');
-        var params = {
-            log: 0,
-            'close timeout': isProduction ? (60 * 3) : 86400,
-            'heartbeat timeout': isProduction ? (60 * 3) : 86400,
-            'heartbeat interval': isProduction ? (20 * 3) : 86400,
-            'polling duration': isProduction ? (25 * 3) : 86400
-        };
 
-        var app = express().http().io(params); // purposefully global
+        var app = express(); // purposefully global
+        var server = http.createServer(app);
         app.passport = passport; // convienience
 
-        app.configure(function() {
-            var sessionStore = new MySQLStore({client: db});
+        var sessionStore = new MySQLStore({client: db});
 
-            app.use(express.favicon(config.get('buildTarget') + "game/favicon.ico")); // todo: move to common
-            app.use(express.compress());
-            app.use(express.cookieParser());
-            //app.use(express.bodyParser({uploadDir:'./uploads'}));
-            app.use(express.json());
-            app.use(express.urlencoded());
-            app.use(express.methodOverride());
-            app.use(express.session({
-                secret: config.get('session_secret'),
-                cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 }, // one month
-                store: sessionStore // store sessions in db for "remember me"
-            }));
-            app.set('view engine', 'html');
-            app.set('views', config.get('buildTarget'));
-            app.engine('html', require('hogan-express'));
-            app.locals.delimiters = '<% %>';
-            // Initialize Passport!  Also use passport.session() middleware, to support
-            // persistent login sessions (recommended).
-            app.use(passport.initialize());
-            app.use(passport.session());
+        // favicon middleware throws if the file is missing (e.g. before a
+        // client build), so only mount it when the icon actually exists.
+        var faviconPath = config.get('buildTarget') + "game/favicon.ico";
+        if (fs.existsSync(faviconPath)) {
+            app.use(favicon(faviconPath));
+        }
+        app.use(compression());
+        app.use(cookieParser());
+        app.use(express.json());
+        app.use(express.urlencoded({ extended: true }));
+        app.use(methodOverride('_method'));
+        app.use(session({
+            name: 'connect.sid',
+            secret: config.get('session_secret'),
+            resave: false,
+            saveUninitialized: false,
+            cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 }, // one month
+            store: sessionStore // store sessions in db for "remember me"
+        }));
+        app.set('view engine', 'html');
+        app.set('views', config.get('buildTarget'));
+        app.engine('html', require('hogan-express'));
+        app.locals.delimiters = '<% %>';
+        // Initialize Passport!  Also use passport.session() middleware, to support
+        // persistent login sessions (recommended).
+        app.use(passport.initialize());
+        app.use(passport.session());
 
-            // link socket to passport
-            var old_auth;
-            old_auth = app.io.get('authorization');
+        // Attach Socket.IO with the express.io compatibility layer. This also
+        // loads the session onto each socket handshake (guests allowed) and
+        // registers the HTTP req.io middleware, replacing the old
+        // app.io.set('authorization') + passport.socketio wiring.
+        var io = attachExpressIO(app, server, {
+            sessionStore: sessionStore,
+            sessionSecret: config.get('session_secret'),
+            sessionKey: 'connect.sid',
+            ioOptions: {
+                pingInterval: isProduction ? 25000 : 60000,
+                pingTimeout: isProduction ? 20000 : 60000
+            }
+        });
+        app.io = io; // express.io exposed the socket server as app.io
 
-            app.io.set("authorization", require('passport.socketio').authorize({
-                passport: passport,
-                cookieParser: express.cookieParser,
-                key: 'connect.sid',
-                secret: config.get('session_secret'),
-                store: sessionStore,
-                success: function(data, accept) {
-                    //console.log('auth success');
-                    // this means it was able to pull user data from session
-                    return old_auth(data, accept);
-                },
-                fail: function(data, accept) {
-                    //console.log('auth fail', arguments);
-                    // this means it does not have user data from session, however, it's ok,
-                    // we allow guests
-                    return old_auth(data, accept);
-                }
-            }));
+        // Simple route middleware to ensure user is authenticated.
+        //   Use this route middleware on any resource that needs to be protected.  If
+        //   the request is authenticated (typically via a persistent login session),
+        //   the request will proceed.  Otherwise, the user will be redirected to the
+        //   login page.
+        app.ensureAuthenticated = function(req, res, next) {
+            if (req.isAuthenticated()) {
+                return next();
+            }
 
-            // Simple route middleware to ensure user is authenticated.
-            //   Use this route middleware on any resource that needs to be protected.  If
-            //   the request is authenticated (typically via a persistent login session),
-            //   the request will proceed.  Otherwise, the user will be redirected to the
-            //   login page.
-            app.ensureAuthenticated = function(req, res, next) {
-                if (req.isAuthenticated()) {
-                    return next();
-                }
+            res.status(403).send('please log in first');
+        };
 
-                res.send(403, 'please log in first');
-            };
+        // ALL roles must be present to access
+        app.authorize = function(roles) {
+            // array or single...
+            if (typeof roles === 'string') {
+                roles = [roles];
+            }
 
-            // ALL roles must be present to access
-            app.authorize = function(roles) {
-                // array or single...
-                if (typeof roles === 'string') {
-                    roles = [roles];
-                }
-
-                var middle = function(req, res, next) {
-                    if (!req.user.roles || req.user.roles.length === 0) {
-                        next(403, 'unauthorized');
-                        return;
-                    }
-
-                    for (var i = 0; i < roles.length; i++) {
-                        if (req.user.roles.indexOf(roles[i]) < 0) {
-                            next(403, 'unauthorized');
-                            return;
-                        }
-                    }
-                    next();
-                };
-
-                return middle;
-            };
-
-            // ANY role may access
-            app.authorizeAny = function(roles) {
-                var middle = function(req, res, next) {
-                    if (!req.user.roles || req.user.roles.length === 0) {
-                        next(403, 'unauthorized');
-                        return;
-                    }
-
-                    for (var i = 0; i < roles.length; i++) {
-                        if (req.user.roles.indexOf(roles[i]) >= 0) {
-                            next();
-                            return;
-                        }
-                    }
+            var middle = function(req, res, next) {
+                if (!req.user.roles || req.user.roles.length === 0) {
                     next(403, 'unauthorized');
                     return;
-                };
+                }
 
-                return middle;
+                for (var i = 0; i < roles.length; i++) {
+                    if (req.user.roles.indexOf(roles[i]) < 0) {
+                        next(403, 'unauthorized');
+                        return;
+                    }
+                }
+                next();
             };
-        });
+
+            return middle;
+        };
+
+        // ANY role may access
+        app.authorizeAny = function(roles) {
+            var middle = function(req, res, next) {
+                if (!req.user.roles || req.user.roles.length === 0) {
+                    next(403, 'unauthorized');
+                    return;
+                }
+
+                for (var i = 0; i < roles.length; i++) {
+                    if (req.user.roles.indexOf(roles[i]) >= 0) {
+                        next();
+                        return;
+                    }
+                }
+                next(403, 'unauthorized');
+                return;
+            };
+
+            return middle;
+        };
 
         // load routes
         require('./routes')(app, db);
@@ -196,7 +196,7 @@ var Server = Class.extend({
         this.server = app;
 
         // start api server
-        app.listen(config.get('server_port'));
+        server.listen(config.get('server_port'));
 
         log('express.io server running on ' + config.get('server_port'));
     }

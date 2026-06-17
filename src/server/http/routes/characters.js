@@ -13,7 +13,7 @@ module.exports = function(app, db) {
                 Character.get(req.cookies.guestCharacterId).then(function(character) {
                     res.send([character]);
                 }, function(err) {
-                    res.send(404, 'error loading guest character');
+                    res.status(404).send('error loading guest character');
                 });
             } else {
                 res.send([]);
@@ -24,10 +24,10 @@ module.exports = function(app, db) {
                 Character.getAllForUser(userId).then(function(characters) {
                     res.send(characters);
                 }, function(err) {
-                    res.send(404, 'error loading characters for user: ' + userId);
+                    res.status(404).send('error loading characters for user: ' + userId);
                 });
             } else {
-                res.send(403, 'Cannot retreive characters that aren\'t yours');
+                res.status(403).send('Cannot retreive characters that aren\'t yours');
             }
         }
     });
@@ -36,7 +36,7 @@ module.exports = function(app, db) {
         var userId = parseInt(req.params.userId, 10);
 
         if(req.user.id !== userId) {
-            res.send(403, 'Cannot create characters for someone else!');
+            res.status(403).send('Cannot create characters for someone else!');
             return;
         }
 
@@ -46,13 +46,13 @@ module.exports = function(app, db) {
             // object should be updated from DB with ID and whatever else...
             res.send(character);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
     app.get('/api/guest/characters', function(req, res) {
         if(req.isAuthenticated()) {
-            res.send(500, 'You are not a guest if you are signed in!');
+            res.status(500).send('You are not a guest if you are signed in!');
             return;
         }
 
@@ -60,7 +60,7 @@ module.exports = function(app, db) {
             Character.get(req.cookies.guestCharacterId).then(function(character) {
                 res.send(character);
             }, function(err) {
-                res.send(404, 'error loading guest character');
+                res.status(404).send('error loading guest character');
             });
         } else {
             // generate a new random one
@@ -69,7 +69,7 @@ module.exports = function(app, db) {
                 res.cookie('guestCharacterId', character.id, { maxAge: 900000, httpOnly: false});
                 res.send(character);
             }, function(err) {
-                res.send(500, err);
+                res.status(500).send(err);
             });
         }
     });
@@ -80,7 +80,7 @@ module.exports = function(app, db) {
             characterId = parseInt(req.params.characterId, 10);
 
         if(req.user.id !== userId) {
-            res.send(403, 'Cannot delete another user\'s character!');
+            res.status(403).send('Cannot delete another user\'s character!');
             return;
         }
 
@@ -91,16 +91,16 @@ module.exports = function(app, db) {
                     character.$delete().then(function() {
                         res.send('OK');
                     }, function(err) {
-                        res.send(500, 'error deleting character! ' + err);
+                        res.status(500).send('error deleting character! ' + err);
                     });
                 } else {
-                    res.send(403, 'Cannot delete another user\'s character!');
+                    res.status(403).send('Cannot delete another user\'s character!');
                 }
             }, function(err) {
                 if(err === 'not found') {
-                    res.send(404, err);
+                    res.status(404).send(err);
                 } else {
-                    res.send(500, err);
+                    res.status(500).send(err);
                 }
             });
     });
@@ -112,7 +112,7 @@ module.exports = function(app, db) {
             characterId = parseInt(req.params.characterId, 10);
 
         if(req.user.id !== userId && !req.user.$isAdmin()) {
-            res.send(403, 'You do not own this character!');
+            res.status(403).send('You do not own this character!');
             return;
         }
 
@@ -123,16 +123,16 @@ module.exports = function(app, db) {
                     character.$getFriends().then(function(friends) {
                         res.send(friends);
                     }, function(err) {
-                        res.send(500, err);
+                        res.status(500).send(err);
                     });
                 } else {
-                    res.send(403, 'You do not own this character!');
+                    res.status(403).send('You do not own this character!');
                 }
             }, function(err) {
                 if(err === 'not found') {
-                    res.send(404, err);
+                    res.status(404).send(err);
                 } else {
-                    res.send(500, err);
+                    res.status(500).send(err);
                 }
             });
     });

@@ -176,7 +176,10 @@ module.exports = function(grunt) {
         less: {
             web: {
                 options: {
-                    yuicompress: true
+                    compress: true,
+                    // LESS 4 defaults to parens-division; the bootstrap-era
+                    // source relies on eager math (e.g. floor(@x / 2)).
+                    math: 'always'
                 },
                 files: {
                     '<%= cfg.get("buildTarget") %>web/css/<%= pkg.name %>.css': 'src/client/web/css/ironbane.less'
@@ -184,7 +187,10 @@ module.exports = function(grunt) {
             },
             game: {
                 options: {
-                    yuicompress: true
+                    compress: true,
+                    // LESS 4 defaults to parens-division; the bootstrap-era
+                    // source relies on eager math (e.g. floor(@x / 2)).
+                    math: 'always'
                 },
                 files: {
                     '<%= cfg.get("buildTarget") %>game/css/<%= pkg.name %>.css': 'src/client/game/css/ironbane.less'
@@ -226,7 +232,7 @@ module.exports = function(grunt) {
         },
         copy: {
             options: {
-                processContentExclude: ['**/*.{png,gif,jpg,ico,psd}']
+                noProcess: ['**/*.{png,gif,jpg,ico,psd}']
             },
             common: {
                 // todo: move lib files into common

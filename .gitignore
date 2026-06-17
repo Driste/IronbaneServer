@@ -10,5 +10,6 @@ config.json
 thumbs.db
 deploy/
 out/
-IronbaneAssets/__pycache__/
+IronbaneAssets/
+__pycache__/
 *.pyc

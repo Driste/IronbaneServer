@@ -16,7 +16,6 @@
 */
 
 var Class = require('../../../common/class'),
-	sanitize = require('validator').sanitize,
 	_ = require('underscore'),
 	log = require('util').log,
 	unidecode = require('unidecode'),

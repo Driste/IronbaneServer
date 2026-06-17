@@ -16,7 +16,7 @@
 */
 module.exports = function(units, worldHandler) {
     var Class = require('../../../common/class'),
-        sanitize = require('validator').sanitize,
+        validator = require('validator'),
         _ = require('underscore'),
         log = require('util').log,
         ironbot = require(APP_ROOT_PATH + '/src/server/game/ironbot/ironbot');
@@ -119,7 +119,7 @@ module.exports = function(units, worldHandler) {
             var messageType = room ? ('say:' + room) : 'say';
 
             if (!unit.editor) {
-                message = sanitize(message).entityEncode();
+                message = validator.escape(message);
             }
 
             // Void if message is empty

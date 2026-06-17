@@ -27,11 +27,6 @@ global.APP_ROOT_PATH = __dirname;
 var isProduction = config.get('isProduction');
 var cryptSalt = config.get('cryptSalt');
 
-// profiling...
-if (!isProduction && config.get('use_nodetime')) {
-    require('nodetime').profile(config.get('nodetime'));
-}
-
 var clientDir = config.get('buildTarget') + 'game/';
 var assetDir = config.get('assetDir');
 
@@ -60,10 +55,6 @@ var crypto = require('crypto');
 
 var util = require('./Engine/ibutil.js');
 var fsi = require('./External/fsi.js');
-
-// https://github.com/chriso/node-validator
-var check = require('validator').check,
-    sanitize = require('validator').sanitize;
 
 var _ = require('underscore');
 

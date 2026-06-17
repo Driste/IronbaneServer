@@ -20,7 +20,7 @@ module.exports = function(db) {
     var Q = require('q'),
         _ = require('underscore'),
         log = require('util').log,
-        marked = require('marked'),
+        marked = require('marked').marked,
         User = require('./user');
 
     var getById = function(articleId, rendered) {

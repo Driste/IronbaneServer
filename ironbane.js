@@ -10,7 +10,7 @@ var program = require('commander'),
 var setupWizard = function() {
     var prompt = require('prompt');
 
-    prompt.message = "Ironbane!".green;
+    prompt.message = "Ironbane!";
 
     var basics = {
         properties: {
@@ -66,7 +66,7 @@ var setupWizard = function() {
 
     prompt.start();
 
-    var pGet = q.denodeify(prompt.get);
+    var pGet = q.denodeify(prompt.get.bind(prompt));
 
     var steps = [function(res) {
         console.log('Step 1: SERVER CONFIG');
@@ -93,7 +93,7 @@ var setupWizard = function() {
 var adminPass = function() {
     var prompt = require('prompt');
 
-    prompt.message = "Ironbane!".green;
+    prompt.message = "Ironbane!";
 
     var password = {
         properties: {
@@ -107,7 +107,7 @@ var adminPass = function() {
 
     prompt.start();
 
-    var pGet = q.denodeify(prompt.get);
+    var pGet = q.denodeify(prompt.get.bind(prompt));
 
     var steps = [function(res) {
         return pGet(password).then(function(results) {
@@ -181,9 +181,8 @@ program
       });
 
 program
-    .command('*')
-    .action(function(arg) {
-        console.log('No such command, type -help for options.');
+    .on('command:*', function() {
+        console.log('No such command, type --help for options.');
     });
 
 program

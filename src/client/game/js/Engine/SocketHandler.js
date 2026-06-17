@@ -44,8 +44,8 @@ var SocketHandler = Class.extend({
         
         if (this.serverOnline) {
 
-            this.socket = io.connect('http://' + ironbane_hostname + ':' + ironbane_port + '/', {
-                reconnect: false
+            this.socket = io('http://' + ironbane_hostname + ':' + ironbane_port + '/', {
+                reconnection: false
             });
 
             this.socket.emit('getStartData', {}, function(reply) {

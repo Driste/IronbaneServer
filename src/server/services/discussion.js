@@ -18,7 +18,7 @@ var Class = require('../../common/class'),
     Q = require('q'),
     db = require('../db'),
     _ = require('underscore'),
-    uuid = require('node-uuid');
+    uuid = require('uuid');
 
 var DiscussionService = Class.extend({
     getByThread: function(threadId) {

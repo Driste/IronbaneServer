@@ -3,6 +3,7 @@
 module.exports = function(grunt) {
     var shell = require('shelljs');
     var fs = require('fs');
+    var path = require('path');
     var crypto = require('crypto');
     var Q = require('q');
     var _ = require('underscore');
@@ -69,8 +70,10 @@ module.exports = function(grunt) {
         var compileObj = function(file, md5) {
             var deferred = Q.defer();
 
-            var cmd = "python " +
-                path.dirname(file) + "/convert_obj_three.py" +
+            // Use python3 and the converter vendored alongside this task
+            // (tasks/convert_obj_three.py) rather than a per-asset-dir copy.
+            var cmd = "python3 " +
+                path.join(__dirname, "convert_obj_three.py") +
                 " -i " + path.dirname(file) + "/" + path.basename(file) +
                 " -o " + path.dirname(file) + "/" + path.basename(file, ".obj") + ".js" +
                 "";

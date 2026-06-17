@@ -40,7 +40,7 @@ Your root folder should now contain an IronbaneAssets folder.
 
 * Run ```npm install -g grunt-cli``` to install Grunt
 
-* (Optional) If you want to make new 3d models and test them out, you will need to have [Python 2.7.x](http://www.python.org/download/) installed. Do not use the latest version of Python, only 2.7.x currently works with the script that converts our 3d models to be used in-game.
+* (Optional) If you want to make new 3d models and test them out, you will need [Python 3](https://www.python.org/downloads/) installed (available on your PATH as `python3`). The OBJ&rarr;Three.js converter (`tasks/convert_obj_three.py`) has been updated for Python 3.
 
 * Run grunt ```grunt```
 

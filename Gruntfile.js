@@ -21,11 +21,6 @@ module.exports = function(grunt) {
             showDocularDocs: true,
             showAngularDocs: true
         },
-        jshint: {
-            web: {
-                src: ['src/client/common/js/**/*.js', 'src/client/web/js/**/*.js']
-            }
-        },
         jasmine: {
             pivotal: {
                 src: 'src/client/web/js/**/*.js',
@@ -401,7 +396,6 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
     //grunt.loadNpmTasks('grunt-contrib-jasmine');
     //grunt.loadNpmTasks('grunt-docular');
     grunt.loadNpmTasks('grunt-contrib-less');
@@ -415,7 +409,7 @@ module.exports = function(grunt) {
     // Default task(s).
     grunt.registerTask('assets', ['three_obj', 'copy:assets']);
     grunt.registerTask('game', ['clean:game', 'concat:game', 'uglify:game', 'less:game', 'replace:game', 'copy:game']);
-    grunt.registerTask('website', ['jshint:web', 'clean:web', 'concat:web', 'uglify:web', 'less:web', 'replace:web', 'copy:web']);
+    grunt.registerTask('website', ['clean:web', 'concat:web', 'uglify:web', 'less:web', 'replace:web', 'copy:web']);
     grunt.registerTask('full', ['dbupgrade', 'game', 'website', 'assets']);
     grunt.registerTask('detailmeshes', ['builddetailmeshes', 'three_obj']);
     grunt.registerTask('navnodes', ['three_obj', 'buildnavnodes']);

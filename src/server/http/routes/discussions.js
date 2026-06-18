@@ -8,7 +8,7 @@ module.exports = function(app, db) {
         DiscussionService.getByThread().then(function(threads) {
             res.send(threads);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -25,7 +25,7 @@ module.exports = function(app, db) {
             .then(function(post) {
                 res.send(post);
             }, function(err) {
-                res.send(500, err);
+                res.status(500).send(err);
             });
     });
 

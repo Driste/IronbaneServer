@@ -11,7 +11,7 @@ module.exports = function(app, db) {
         }).then(function(articles) {
             res.send(articles);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -21,7 +21,7 @@ module.exports = function(app, db) {
             // send back the completed details
             res.send(article);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -39,11 +39,11 @@ module.exports = function(app, db) {
                     res.send(updatedarticle);
                 }, function(error) {
                     //console.log("article update fail: ", err);
-                    res.send(500, error);
+                    res.status(500).send(error);
                 });
             }, function(err) {
                 //console.log("article get fail: ", err);
-                res.send(500, err);
+                res.status(500).send(err);
             });
     });
 
@@ -56,10 +56,10 @@ module.exports = function(app, db) {
                 res.send(article);
             }, function(err) {
                 if (err.code === 404) {
-                    res.send(err.code, err.msg);
+                    res.status(err.code).send(err.msg);
                 } else {
                     // unknown server error
-                    res.send(500, err);
+                    res.status(500).send(err);
                 }
             });
     });

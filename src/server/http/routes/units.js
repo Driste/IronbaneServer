@@ -10,7 +10,7 @@ module.exports = function(app, db) {
         UnitTemplateSvc.getAll().then(function(templates) {
             res.send(templates);
         }, function(error) {
-            res.send(500, error);
+            res.status(500).send(error);
         });
     });
 
@@ -18,7 +18,7 @@ module.exports = function(app, db) {
         UnitTemplateSvc.getById(req.params.templateId).then(function(template) {
             res.send(template);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -26,7 +26,7 @@ module.exports = function(app, db) {
         UnitService.getById(req.params.unitId).then(function(unit) {
             res.send(unit);
         }, function(err) {
-            res.send(err.code, err.message);
+            res.status(err.code).send(err.message);
         });
     });
 

@@ -18,7 +18,7 @@ module.exports = function(app, db) {
             // send back the completed details
             res.send(message);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -28,7 +28,7 @@ module.exports = function(app, db) {
             // send back the completed details
             res.send(messages);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -38,7 +38,7 @@ module.exports = function(app, db) {
             // send back the completed details
             res.send(messages);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -46,7 +46,7 @@ module.exports = function(app, db) {
         Message.get(req.params.id).then(function(message){
             res.send(message);
         }, function(err){
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 };

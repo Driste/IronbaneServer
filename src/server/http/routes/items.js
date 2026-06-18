@@ -9,7 +9,7 @@ module.exports = function(app, db) {
             //log("trying to send templates");
             res.send(templates);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -19,7 +19,7 @@ module.exports = function(app, db) {
             //log("trying to send template");
             res.send(template);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -27,7 +27,7 @@ module.exports = function(app, db) {
         ItemTemplateService.getUsageAnalysis(req.params.templateId).then(function(results) {
             res.send(results);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -36,7 +36,7 @@ module.exports = function(app, db) {
         ItemTemplateService.create(req.body).then(function(template) {
             res.send(template);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -47,7 +47,7 @@ module.exports = function(app, db) {
         ItemTemplateService.update(data).then(function(template) {
             res.send(template);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 

@@ -24,13 +24,13 @@ Play the game at <http://www.ironbane.com/>.
 
 * Install [MySql](http://dev.mysql.com/downloads/mysql/)
 
-* Install [Node.js version 0.8.5 or higher](http://nodejs.org/download/)
+* Install [Node.js](https://nodejs.org/) (the dependencies were modernized for current Node; Node 18 LTS or newer, including Node 22, is recommended)
 
-* Checkout the [IronbaneAssets repo](https://github.com/ironbane/IronbaneAssets) in your root folder.
+* Check out the game content into an `IronbaneAssets` folder in your root folder. For this (legacy) version of the server, the matching content lives in the [IronbaneAssetsLegacy repo](https://github.com/ironbane/IronbaneAssetsLegacy). Clone it into a folder named `IronbaneAssets` (this is the `assetDir` default in `nconf.js`, and it is gitignored so it stays separate from the server repo):
 
 ```
-    git clone git@github.com:ironbane/IronbaneAssets.git
-``` 
+    git clone https://github.com/ironbane/IronbaneAssetsLegacy.git IronbaneAssets
+```
 
 Your root folder should now contain an IronbaneAssets folder.
 
@@ -40,7 +40,7 @@ Your root folder should now contain an IronbaneAssets folder.
 
 * Run ```npm install -g grunt-cli``` to install Grunt
 
-* (Optional) If you want to make new 3d models and test them out, you will need to have [Python 2.7.x](http://www.python.org/download/) installed. Do not use the latest version of Python, only 2.7.x currently works with the script that converts our 3d models to be used in-game.
+* (Optional) If you want to make new 3d models and test them out, you will need [Python 3](https://www.python.org/downloads/) installed (available on your PATH as `python3`). The OBJ&rarr;Three.js converter (`tasks/convert_obj_three.py`) has been updated for Python 3.
 
 * Run grunt ```grunt```
 

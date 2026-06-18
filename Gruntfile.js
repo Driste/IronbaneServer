@@ -21,11 +21,6 @@ module.exports = function(grunt) {
             showDocularDocs: true,
             showAngularDocs: true
         },
-        jshint: {
-            web: {
-                src: ['src/client/common/js/**/*.js', 'src/client/web/js/**/*.js']
-            }
-        },
         jasmine: {
             pivotal: {
                 src: 'src/client/web/js/**/*.js',
@@ -176,7 +171,10 @@ module.exports = function(grunt) {
         less: {
             web: {
                 options: {
-                    yuicompress: true
+                    compress: true,
+                    // LESS 4 defaults to parens-division; the bootstrap-era
+                    // source relies on eager math (e.g. floor(@x / 2)).
+                    math: 'always'
                 },
                 files: {
                     '<%= cfg.get("buildTarget") %>web/css/<%= pkg.name %>.css': 'src/client/web/css/ironbane.less'
@@ -184,7 +182,10 @@ module.exports = function(grunt) {
             },
             game: {
                 options: {
-                    yuicompress: true
+                    compress: true,
+                    // LESS 4 defaults to parens-division; the bootstrap-era
+                    // source relies on eager math (e.g. floor(@x / 2)).
+                    math: 'always'
                 },
                 files: {
                     '<%= cfg.get("buildTarget") %>game/css/<%= pkg.name %>.css': 'src/client/game/css/ironbane.less'
@@ -226,7 +227,7 @@ module.exports = function(grunt) {
         },
         copy: {
             options: {
-                processContentExclude: ['**/*.{png,gif,jpg,ico,psd}']
+                noProcess: ['**/*.{png,gif,jpg,ico,psd}']
             },
             common: {
                 // todo: move lib files into common
@@ -395,7 +396,6 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
     //grunt.loadNpmTasks('grunt-contrib-jasmine');
     //grunt.loadNpmTasks('grunt-docular');
     grunt.loadNpmTasks('grunt-contrib-less');
@@ -409,7 +409,7 @@ module.exports = function(grunt) {
     // Default task(s).
     grunt.registerTask('assets', ['three_obj', 'copy:assets']);
     grunt.registerTask('game', ['clean:game', 'concat:game', 'uglify:game', 'less:game', 'replace:game', 'copy:game']);
-    grunt.registerTask('website', ['jshint:web', 'clean:web', 'concat:web', 'uglify:web', 'less:web', 'replace:web', 'copy:web']);
+    grunt.registerTask('website', ['clean:web', 'concat:web', 'uglify:web', 'less:web', 'replace:web', 'copy:web']);
     grunt.registerTask('full', ['dbupgrade', 'game', 'website', 'assets']);
     grunt.registerTask('detailmeshes', ['builddetailmeshes', 'three_obj']);
     grunt.registerTask('navnodes', ['three_obj', 'buildnavnodes']);

@@ -153,7 +153,7 @@ var SocketHandler = Class.extend({
 
             // first thing check for IP bans
             _.each(me.bans, function(ban) {
-                if (ban.ip === req.io.socket.handshake.address.address) {
+                if (ban.ip === req.io.socket.handshake.address) {
                     var time = Math.round((new Date()).getTime() / 1000);
                     if (ban.until > time || !ban.until) {
                         respond({errmsg: 'You have been banned.'});
@@ -272,7 +272,7 @@ var SocketHandler = Class.extend({
         });
 
         io.sockets.on("connection", function (socket) {
-            socket.ip = socket.handshake.address.address;
+            socket.ip = socket.handshake.address;
 
             socket.unit = null;
 
@@ -477,6 +477,14 @@ var SocketHandler = Class.extend({
 
                 switch (item.getType()) {
                     case 'consumable':
+                        // Item behaviors may veto using the item
+                        if (!itemBehaviorService.canUse(item, player)) {
+                            reply({
+                                errmsg: "You can't use that right now."
+                            });
+                            return;
+                        }
+
                         // Remove the item
                         player.items = _.without(player.items, item);
 
@@ -495,6 +503,10 @@ var SocketHandler = Class.extend({
                                 break;
                         }
 
+                        // Apply any item-behavior effects (e.g. a permanent
+                        // MaxLife or HealthRegen from a consumable)
+                        itemBehaviorService.use(item, player);
+
                         // It's possible that item increases the maximum health
                         player.CalculateMaxHealth(true);
 
@@ -502,45 +514,81 @@ var SocketHandler = Class.extend({
 
                         break;
                     case 'armor':
-                        // Unequip all armor for this subtype
-                        _.each(player.items, function(i) {
-                            if (i.getType() === 'armor' && i.getSubType() === item.getSubType() && i !== item) {
-                                i.equipped = 0;
-                            }
-                        });
-
-                        // Set to equipped
-                        item.equipped = +!item.equipped;
-
-                        // Send a request to equipment
-                        // Other players will update the view
-                        player.UpdateAppearance(true);
-
-                        // It's possible that armor increases the maximum health
-                        player.CalculateMaxHealth(true);
-
-                        // And obviously, the armor itself
-                        player.CalculateMaxArmor(true);
-
-                        break;
                     case 'weapon':
                     case 'tool':
-                        // Unequip all weapons we already have equipped
-                        //  (since we can have only one active)
-                        _.each(player.items, function(i) {
-                            if ((i.getType() === 'weapon' || i.getType() === 'tool') && i !== item) {
-                                i.equipped = 0;
+                        var isArmor = item.getType() === 'armor';
+                        var willEquip = !item.equipped;
+
+                        // Items that must be removed first: same-subtype armor,
+                        // or any other weapon/tool (only one can be active).
+                        var conflicts = _.filter(player.items, function(i) {
+                            if (i === item || !i.equipped) {
+                                return false;
                             }
+                            if (isArmor) {
+                                return i.getType() === 'armor' && i.getSubType() === item.getSubType();
+                            }
+                            return i.getType() === 'weapon' || i.getType() === 'tool';
                         });
 
-                        // Set to equipped
-                        item.equipped = +!item.equipped;
+                        if (willEquip) {
+                            // behaviors may veto equipping (e.g. Unique)
+                            if (!itemBehaviorService.canEquip(item, player)) {
+                                reply({
+                                    errmsg: "You can't equip that."
+                                });
+                                return;
+                            }
 
-                        player.EmitNearby("updateWeapon", {
-                            id: player.id,
-                            // should weapon really be template id?
-                            weapon: item.equipped ? item.template : 0
-                        });
+                            // a cursed conflicting item can't be swapped out
+                            var cursed = _.find(conflicts, function(i) {
+                                return !itemBehaviorService.canUnEquip(i, player);
+                            });
+                            if (cursed) {
+                                reply({
+                                    errmsg: "You can't seem to remove your " +
+                                        (cursed.$template ? cursed.$template.name : 'item') + "!"
+                                });
+                                return;
+                            }
+
+                            _.each(conflicts, function(i) {
+                                i.equipped = 0;
+                                itemBehaviorService.unEquip(i, player);
+                            });
+
+                            item.equipped = 1;
+                            itemBehaviorService.equip(item, player);
+                        } else {
+                            // behaviors may veto unequipping (e.g. Cursed)
+                            if (!itemBehaviorService.canUnEquip(item, player)) {
+                                reply({
+                                    errmsg: "You can't seem to put this down!"
+                                });
+                                return;
+                            }
+
+                            item.equipped = 0;
+                            itemBehaviorService.unEquip(item, player);
+                        }
+
+                        if (isArmor) {
+                            // Send a request to equipment
+                            // Other players will update the view
+                            player.UpdateAppearance(true);
+
+                            // It's possible that armor increases the maximum health
+                            player.CalculateMaxHealth(true);
+
+                            // And obviously, the armor itself
+                            player.CalculateMaxArmor(true);
+                        } else {
+                            player.EmitNearby("updateWeapon", {
+                                id: player.id,
+                                // should weapon really be template id?
+                                weapon: item.equipped ? item.template : 0
+                            });
+                        }
 
                         break;
                 }

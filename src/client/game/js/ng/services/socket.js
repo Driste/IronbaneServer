@@ -27,8 +27,8 @@ IronbaneApp
                     return;
                 }
 
-                _socket = $window.io.connect('http://' + GAME_HOST + ':' + GAME_PORT + '/', {
-                    reconnect: false
+                _socket = $window.io('http://' + GAME_HOST + ':' + GAME_PORT + '/', {
+                    reconnection: false
                 });
 
                 deferred.resolve(_socket);

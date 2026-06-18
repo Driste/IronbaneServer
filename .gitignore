@@ -11,3 +11,5 @@ thumbs.db
 deploy/
 out/
 IronbaneAssets/
+__pycache__/
+*.pyc

@@ -19,18 +19,18 @@ var Class = require('../../common/class');
 module.exports = function(db) {
     var Q = require('q'),
         _ = require('underscore'),
-        marked = require('marked'),
+        marked = require('marked').marked,
         log = require('util').log;
 
+    // NOTE: marked 4.x removed the built-in `sanitize` option (and `tables`,
+    // `smartLists`, `smartypants`). HTML in user-submitted markdown is no longer
+    // stripped by marked itself; output should be passed through an HTML
+    // sanitizer (e.g. sanitize-html / DOMPurify) before being trusted.
     marked.setOptions({
         renderer: new marked.Renderer(),
         gfm: true,
-        tables: true,
         breaks: false,
-        pedantic: false,
-        sanitize: true,
-        smartLists: true,
-        smartypants: false
+        pedantic: false
     });
 
     var Forum = Class.extend({

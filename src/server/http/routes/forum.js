@@ -15,7 +15,7 @@ module.exports = function(app, db) {
         Forum.getForumView().then(function(forum) {
             res.send(forum);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -25,7 +25,7 @@ module.exports = function(app, db) {
             .then(function(response){
                 res.send(response);
             }, function(error){
-                res.send(error, 500);
+                res.status(500).send(error);
             });
     });
 
@@ -46,7 +46,7 @@ module.exports = function(app, db) {
         User.getOnlineUsersLastDay().then(function(users) {
             res.send(users);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -54,7 +54,7 @@ module.exports = function(app, db) {
         Article.getFrontPage().then(function(frontpage) {
             res.send(frontpage);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -62,7 +62,7 @@ module.exports = function(app, db) {
         Forum.getStatistics().then(function(statistics) {
             res.send(statistics);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -71,7 +71,7 @@ module.exports = function(app, db) {
         Board.getRecent().then(function(results) {
             res.send(results);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -81,7 +81,7 @@ module.exports = function(app, db) {
             log('getting board: ' + req.params.boardId);
             res.send(results);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -91,13 +91,13 @@ module.exports = function(app, db) {
             Forum.getFrontPage().then(function(results) {
                 res.send(results);
             }, function(error) {
-                res.send(error, 500);
+                res.status(500).send(error);
             });
         } else {
             Board.getView(req.params.boardId).then(function(results) {
                 res.send(results);
             }, function(error) {
-                res.send(error, 500);
+                res.status(500).send(error);
             });
         }
     });
@@ -117,10 +117,10 @@ module.exports = function(app, db) {
                 res.send(done);
             }, function(error){
                 log(error);
-                res.send(500, error);
+                res.status(500).send(error);
             });
             }, function(err) {
-                res.send(500, err);
+                res.status(500).send(err);
             });
 
     });
@@ -129,7 +129,7 @@ module.exports = function(app, db) {
         Topic.unlock(req.params.topicId).then(function(result) {
             res.send(result);
        }, function(err) {
-        res.send(500, err);
+        res.status(500).send(err);
        });
     });
 
@@ -137,7 +137,7 @@ module.exports = function(app, db) {
         Topic.lock(req.params.topicId).then(function(result) {
             res.send(result);
        }, function(err) {
-        res.send(500, err);
+        res.status(500).send(err);
        });
     });
 
@@ -145,7 +145,7 @@ module.exports = function(app, db) {
         Topic.unsticky(req.params.topicId).then(function(result) {
             res.send(result);
        }, function(err) {
-        res.send(500, err);
+        res.status(500).send(err);
        });
     });
 
@@ -153,7 +153,7 @@ module.exports = function(app, db) {
         Topic.sticky(req.params.topicId).then(function(result) {
             res.send(result);
        }, function(err) {
-        res.send(500, err);
+        res.status(500).send(err);
        });
     });
 
@@ -161,7 +161,7 @@ module.exports = function(app, db) {
         Topic.delete(req.params.topicId).then(function(result) {
             res.send(result);
         }).fail(function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -170,7 +170,7 @@ module.exports = function(app, db) {
         Topic.getPostsView(req.params.topicId).then(function(results) {
             res.send(results);
         }, function(error) {
-            res.send(500, error);
+            res.status(500).send(error);
         });
     });
 
@@ -178,7 +178,7 @@ module.exports = function(app, db) {
         Topic.get(req.params.topicId).then(function(results) {
             res.send(results);
         }, function(error) {
-            res.send(500, error);
+            res.status(500).send(error);
         });
     });
 
@@ -201,11 +201,11 @@ module.exports = function(app, db) {
                 res.send(done);
             }, function(error){
                 log(error);
-                res.send(500, error);
+                res.status(500).send(error);
             });
         }, function(error){
             log(error);
-            res.send(500, error);
+            res.status(500).send(error);
         });
     });
 };

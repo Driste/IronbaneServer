@@ -121,7 +121,7 @@ module.exports = function(db) {
 
     Topic.getPostsView = function(topicId, mintime) {
         var deferred = Q.defer(),
-            marked = require('marked'),
+            marked = require('marked').marked,
             minimumtime = parseInt(mintime,10) || 0,
             gravatar = require('nodejs-gravatar');
 

@@ -48,7 +48,7 @@ module.exports = function(app, db) {
             });
             res.send(names);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -66,7 +66,7 @@ module.exports = function(app, db) {
             });
             res.send(names);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -83,7 +83,7 @@ module.exports = function(app, db) {
             });
             res.send(names);
         }, function(err) {
-            res.send(500, err);
+            res.status(500).send(err);
         });
     });
 
@@ -106,7 +106,7 @@ module.exports = function(app, db) {
                     .resize(width, height)
                     .write(path, function(err) {
                         if(err) {
-                            res.send(500, err);
+                            res.status(500).send(err);
                         } else {
                             res.sendfile(path);
                         }
@@ -145,7 +145,7 @@ module.exports = function(app, db) {
                     .resize(width, height)
                     .write(path, function(err) {
                         if(err) {
-                            res.send(500, err);
+                            res.status(500).send(err);
                         } else {
                             res.sendfile(path);
                         }
@@ -160,7 +160,7 @@ module.exports = function(app, db) {
             path = gamePath + 'images/items/' + imageId;
 
         if(!imageId) {
-            res.send(500, 'missing required param i');
+            res.status(500).send('missing required param i');
             return;
         }
 
@@ -175,7 +175,7 @@ module.exports = function(app, db) {
                     .resize(40, 40)
                     .write(path + '_big.png', function(err) {
                         if(err) {
-                            res.send(500, err);
+                            res.status(500).send(err);
                         } else {
                             res.sendfile(path + '_big.png');
                         }
@@ -189,7 +189,7 @@ module.exports = function(app, db) {
             path = gamePath + 'images/items/' + imageId;
 
         if(!imageId) {
-            res.send(500, 'missing required param i');
+            res.status(500).send('missing required param i');
             return;
         }
 
@@ -204,7 +204,7 @@ module.exports = function(app, db) {
                     .resize(24, 24)
                     .write(path + '_medium.png', function(err) {
                         if(err) {
-                            res.send(500, err);
+                            res.status(500).send(err);
                         } else {
                             res.sendfile(path + '_medium.png');
                         }
@@ -218,7 +218,7 @@ module.exports = function(app, db) {
             path = gamePath + 'images/tiles/' + imageId;
 
         if(!imageId) {
-            res.send(500, 'missing required param i');
+            res.status(500).send('missing required param i');
             return;
         }
 
@@ -233,7 +233,7 @@ module.exports = function(app, db) {
                     .resize(24, 24)
                     .write(path + '_medium.png', function(err) {
                         if(err) {
-                            res.send(500, err);
+                            res.status(500).send(err);
                         } else {
                             res.sendfile(path + '_medium.png');
                         }
@@ -247,7 +247,7 @@ module.exports = function(app, db) {
             path = gamePath + 'images/textures/' + imageId;
 
         if(!imageId) {
-            res.send(500, 'missing required param i');
+            res.status(500).send('missing required param i');
             return;
         }
 
@@ -262,7 +262,7 @@ module.exports = function(app, db) {
                     .resize(24, 24)
                     .write(path + '_medium.png', function(err) {
                         if(err) {
-                            res.send(500, err);
+                            res.status(500).send(err);
                         } else {
                             res.sendfile(path + '_medium.png');
                         }
@@ -287,7 +287,7 @@ module.exports = function(app, db) {
         }
 
         if(!imageId) {
-            res.send(500, 'missing required param i');
+            res.status(500).send('missing required param i');
             return;
         }
 
@@ -303,7 +303,7 @@ module.exports = function(app, db) {
                     .resize(48, 48)
                     .write(path + '_big.png', function(err) {
                         if(err) {
-                            res.send(500, err);
+                            res.status(500).send(err);
                         } else {
                             res.sendfile(path + '_big.png');
                         }
@@ -327,7 +327,7 @@ module.exports = function(app, db) {
         }
 
         if(!imageId) {
-            res.send(500, 'missing required param i');
+            res.status(500).send('missing required param i');
             return;
         }
 
@@ -344,7 +344,7 @@ module.exports = function(app, db) {
                     .resize(32, 32)
                     .write(path + '_medium.png', function(err) {
                         if(err) {
-                            res.send(500, err);
+                            res.status(500).send(err);
                         } else {
                             res.sendfile(path + '_medium.png');
                         }
@@ -478,7 +478,7 @@ module.exports = function(app, db) {
                 res.setHeader("Cache-Control", "max-age=" + month);
                 res.sendfile(image);
             }, function(err) {
-                res.send(500, err);
+                res.status(500).send(err);
             });
     });
 };

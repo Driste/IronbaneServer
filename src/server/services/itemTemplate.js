@@ -188,7 +188,8 @@ var Service = Class.extend({
                 attr1: template.attr1,
                 delay: template.delay,
                 particle: template.particle,
-                basevalue: template.basevalue || template.baseValue || 0
+                basevalue: template.basevalue || template.baseValue || 0,
+                behavior: template.behavior || null
             };
 
         db.query('UPDATE ib_item_templates SET ? WHERE id = ?', [data, templateId], function(err, results) {

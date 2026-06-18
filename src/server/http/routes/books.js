@@ -11,9 +11,9 @@ module.exports = function(app, db) {
             res.send(data);
         }, function(err) {
             if(err === 'Book not found.') {
-                res.send(404, err);
+                res.status(404).send(err);
             } else {
-                res.send(500, err);
+                res.status(500).send(err);
             }
         });
     });

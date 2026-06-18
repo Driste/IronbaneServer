@@ -1,12 +1,20 @@
 // nconf.js - setup configuration
 var nconf = require('nconf');
 
+// nconf 0.13's .argv() is backed by yargs, which by default intercepts
+// --help/--version and exits the process. That would shadow the commander
+// based CLI in ironbane.js, so hand nconf a yargs instance with those
+// disabled and let commander own --help/--version.
+var yargs = require('yargs')(process.argv.slice(2))
+    .help(false)
+    .version(false);
+
 // Setup nconf to use (in-order):
 //   1. Command-line arguments
 //   2. Environment variables
 //   3. 'config.json'
 //
-nconf.argv()
+nconf.argv(yargs)
     .env()
     .file({ file: __dirname + '/config.json' });
 
@@ -27,11 +35,6 @@ nconf.defaults({
     cryptSalt: '',
     isProduction: false,
     log_level: 0, // 5 is highest
-    use_nodetime: false,
-    nodetime: {
-        accountKey: '1234FOO',
-        appName: 'Ironbane MMO'
-    },
     use_repl: true,
     use_netrepl: false,
     server_port: 8080,

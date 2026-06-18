@@ -1,0 +1,1 @@
+ALTER TABLE `ib_item_templates` ADD COLUMN `behavior` varchar(255) DEFAULT NULL COMMENT 'Item behaviors, separated by ; or newlines. Each entry is "<Name> <args>", e.g. "HealthRegen strong; Unique". Available: HealthRegen, MaxLife, Unique, Cursed.';

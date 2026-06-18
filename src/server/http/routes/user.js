@@ -12,7 +12,7 @@ module.exports = function(app, db) {
             }
             if (!user) {
                 req.session.messages = [info.message];
-                return res.send(404, "Please fill in both username and password");
+                return res.status(404).send("Please fill in both username and password");
             }
 
             req.login(user, function(err) {
@@ -32,7 +32,8 @@ module.exports = function(app, db) {
         // http only
         if (req.logout) {
             // how to disconnect the associated socket?
-            req.logout();
+            // passport 0.6+ requires a callback
+            req.logout(function() {});
         }
 
         if (req.io.disconnect) {
@@ -72,14 +73,14 @@ module.exports = function(app, db) {
                 newsletter: req.user.newsletter
             });*/
         } else {
-            res.send(404, 'no user signed in');
+            res.status(404).send('no user signed in');
         }
     });
 
     // create new user registration
     app.post('/api/user', function(req, res) {
         if (req.isAuthenticated() && req.user.admin !== 1) {
-            res.send(500, "Can't register when you are signed in.");
+            res.status(500).send("Can't register when you are signed in.");
             return;
         }
 
@@ -112,7 +113,7 @@ module.exports = function(app, db) {
                     });
                 });
             }, function(err) {
-                res.send(500, err);
+                res.status(500).send(err);
             });
     });
 
@@ -121,7 +122,7 @@ module.exports = function(app, db) {
             res.send(user);
         }, function(error) {
             log("oops");
-            res.send(error, 500);
+            res.status(500).send(error);
         });
 
     });
@@ -132,7 +133,7 @@ module.exports = function(app, db) {
             .then(function(friends) {
                 res.send(friends);
             }, function(err) {
-                res.send(500, err);
+                res.status(500).send(err);
             });
     });
 
@@ -149,7 +150,7 @@ module.exports = function(app, db) {
                 .then(function(user) {
                     res.send(user);
                 }, function(err) {
-                    res.send(500, err.stack);
+                    res.status(500).send(err.stack);
                 });
         };
 
@@ -158,7 +159,7 @@ module.exports = function(app, db) {
                 .then(function() {
                     updateUser();
                 }, function(err) {
-                    res.send(500, err.stack);
+                    res.status(500).send(err.stack);
                 });
         } else {
             updateUser();
@@ -173,7 +174,7 @@ module.exports = function(app, db) {
                     .then(function(user) {
                         res.send(user);
                     }, function(error) {
-                        res.send(500, error);
+                        res.status(500).send(error);
                     });
             });
     });
@@ -187,7 +188,7 @@ module.exports = function(app, db) {
                     .then(function(user) {
                         res.send(user);
                     }, function(error) {
-                        res.send(500, error);
+                        res.status(500).send(error);
                     });
             });
     });
@@ -202,7 +203,7 @@ module.exports = function(app, db) {
             .then(function(friend) {
                 res.send(friend);
             }, function(err) {
-                res.send(500, err);
+                res.status(500).send(err);
             });
     });
 
@@ -210,7 +211,7 @@ module.exports = function(app, db) {
         User.getById(req.params.id).then(function(user) {
             res.send(user);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 
@@ -218,7 +219,7 @@ module.exports = function(app, db) {
         User.getAll().then(function(users) {
             res.send(users);
         }, function(error) {
-            res.send(error, 500);
+            res.status(500).send(error);
         });
     });
 };

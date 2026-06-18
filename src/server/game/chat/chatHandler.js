@@ -16,7 +16,7 @@
 */
 module.exports = function(units, worldHandler) {
     var Class = require('../../../common/class'),
-        sanitize = require('validator').sanitize,
+        validator = require('validator'),
         _ = require('underscore'),
         log = require('util').log,
         ironbot = require(APP_ROOT_PATH + '/src/server/game/ironbot/ironbot');
@@ -119,7 +119,7 @@ module.exports = function(units, worldHandler) {
             var messageType = room ? ('say:' + room) : 'say';
 
             if (!unit.editor) {
-                message = sanitize(message).entityEncode();
+                message = validator.escape(message);
             }
 
             // Void if message is empty
@@ -270,27 +270,32 @@ module.exports = function(units, worldHandler) {
             this.io.sockets.emit("chatMessage", messageData);
         },
         listRooms: function() {
-            var rooms = this.io.sockets.manager.rooms,
-                names = _.keys(rooms);
+            // Socket.IO 4 dropped manager.rooms; read the adapter instead. It
+            // also auto-creates a room per socket id, so skip those.
+            var sockets = this.io.sockets,
+                names = [];
 
-            names = _.without(names, '');
-
-            names = _.map(names, function(name) {
-                return name.substr(1); // remove '/' prefix as it's not needed by us
+            sockets.adapter.rooms.forEach(function(members, roomName) {
+                if (!sockets.sockets.has(roomName)) {
+                    names.push(roomName);
+                }
             });
 
             return names;
         },
         // list the rooms that a specific player is a member of
         listRoomsPlayer: function(unit) {
-            var rooms = this.io.sockets.manager.roomClients[unit.socket.id],
-                names = _.keys(rooms);
+            // Socket.IO 4 exposes a socket's rooms as a Set (which includes a
+            // room named after the socket's own id - filter that one out).
+            var names = [];
 
-            names = _.without(names, '');
-
-            names = _.map(names, function(name) {
-                return name.substr(1); // remove '/' prefix as it's not needed by us
-            });
+            if (unit.socket && unit.socket.rooms) {
+                unit.socket.rooms.forEach(function(roomName) {
+                    if (roomName !== unit.socket.id) {
+                        names.push(roomName);
+                    }
+                });
+            }
 
             return names;
         },
